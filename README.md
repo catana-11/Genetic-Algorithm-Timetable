@@ -18,7 +18,7 @@ This project implements a genetic algorithm to generate optimized timetables for
 
 1. Clone this repository: 
     ```
-    git clone https://github.com/penzulo/timetable-ga.git
+    git clone https://github.com/catana-11/Genetic-Algorithm-Timetable.git
     cd university-timetable-scheduling
     ```
 2. Install the required dependencies:``poetry install --no-root --without=dev``
@@ -42,6 +42,7 @@ This project implements a genetic algorithm to generate optimized timetables for
 - `schedule.py`: Schedule and Data classes for managing generation.
 - `genetic_alg.py`: Implementation of the genetic algorithm.
 - `data.py`: Utility functions for displaying data (more to come).
+- `class_timing_constraint.py`: The class timing related features.
 
 ## Customization
 You can adjust the genetic algorithm parameters in `constants.py` to fine-tune the optimization process:
