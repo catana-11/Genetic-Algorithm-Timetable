@@ -1,8 +1,7 @@
-
 from json import load
 from typing import List
 from datetime import datetime
-
+from class_timing_constraint import ClassTimingConstraint  # Import the new constraint class
 from constants import CROSSOVER_RATE, GENERATIONS, MUTATION_RATE, POPULATION_SIZE
 from data import sort_and_display
 from genetic_alg import EvolutionManager, Population
@@ -10,27 +9,6 @@ from models import Course, Department, Division, Professor, Room
 from schedule import ScheduleOptimizer
 
 
-def do_time_slots_intersect(start1, end1, start2, end2):
-    """
-    Check if two time slots intersect, including edge cases where one ends as the other starts.
-
-    Parameters:
-        start1 (str): Start time of the first slot in %H:%M format.
-        end1 (str): End time of the first slot in %H:%M format.
-        start2 (str): Start time of the second slot in %H:%M format.
-        end2 (str): End time of the second slot in %H:%M format.
-
-    Returns:
-        bool: True if the time slots intersect, False otherwise.
-    """
-    # Convert strings to datetime objects
-    start1 = datetime.strptime(start1, "%H:%M")
-    end1 = datetime.strptime(end1, "%H:%M")
-    start2 = datetime.strptime(start2, "%H:%M")
-    end2 = datetime.strptime(end2, "%H:%M")
-
-    # Check for overlap
-    return start1 < end2 and start2 < end1
 
 
 def load_data() -> ScheduleOptimizer:
@@ -78,6 +56,9 @@ def load_data() -> ScheduleOptimizer:
         for div in data["divisions"]
     ]
 
+    # Create the ClassTimingConstraint instance
+    timing_constraint = ClassTimingConstraint()
+
     default_schedule = ScheduleOptimizer()
     for room in rooms:
         default_schedule.register_room(room)
@@ -98,9 +79,9 @@ def load_data() -> ScheduleOptimizer:
             availStart = course.assigned_professor.available_start
             availEnd = course.assigned_professor.available_end
             for tslot in default_schedule.time_slots:
-                if not do_time_slots_intersect(
+                if not timing_constraint.do_time_slots_intersect(
                     availStart, availEnd, tslot.start, tslot.end
-                ):
+                ) and timing_constraint.is_timing_valid(tslot):  # Apply timing constraint
                     course.assigned_professor.reserve_professor(tslot)
                     #course.lab_professor.reserve_professor(tslot)
 
@@ -108,22 +89,11 @@ def load_data() -> ScheduleOptimizer:
 
 
 def main() -> None:
-    # data = load_data()
-    # for dept in data.departments:
-    #     for course in dept.offered_courses:
-    #         availStart = course.assigned_professor.available_start
-    #         availEnd = course.assigned_professor.available_end
-    #         for tslot in data.time_slots:
-    #             if not do_time_slots_intersect(
-    #                 availStart, availEnd, tslot.start, tslot.end
-    #             ):
-    #                 print(f"intersecting: {tslot}")
-
     def schedule_factory():
         return load_data()
 
     initial_population = Population(
-        size=POPULATION_SIZE, schedule_factory=schedule_factory
+        size=POPULATION_SIZE, schedule_factory=schedule_factory, timing_constraint=ClassTimingConstraint
     )
     evolution_manager = EvolutionManager(
         mutation_rate=MUTATION_RATE, crossover_rate=CROSSOVER_RATE

@@ -17,3 +17,4 @@ BREAKONE_START_TIME: datetime = datetime.strptime("10:30", "%H:%M")
 BREAKONE_END_TIME: datetime = datetime.strptime("10:45", "%H:%M")
 BREAKTWO_START_TIME: datetime = datetime.strptime("15:30", "%H:%M")
 BREAKTWO_END_TIME: datetime = datetime.strptime("15:45", "%H:%M")
+
